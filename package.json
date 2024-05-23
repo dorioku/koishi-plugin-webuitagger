@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-webuitagger",
-  "description": "tagger反推图片",
-  "version": "1.2.0",
+  "description": "使用sd-webui的wd1.4tagger插件反推图片",
+  "version": "1.2.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
