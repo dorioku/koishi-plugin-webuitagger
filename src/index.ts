@@ -105,6 +105,8 @@ export function apply(ctx: Context, config: Config) {
           const sortedTags = Object.entries(tagsObject).sort((a, b) => (b[1] as number) - (a[1] as number));
           const sortedTagNames = sortedTags.map(([tag, weight]) => tag.replace(/_/g, ' '));
           const resultString = sortedTagNames.join(', ');
+
+          await session.send(resultString);
         }
 
       } catch (error) {
