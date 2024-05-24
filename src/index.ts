@@ -5,7 +5,7 @@ export interface Config {
 }
 
 export const Config = Schema.object({
-  wdapi: Schema.string().description('反推API地址').default('http://127.0.0.1:7860'),
+  wdapi: Schema.string().description('sd-webui API 服务器地址').default('http://127.0.0.1:7860'),
 });
 
 export function apply(ctx: Context, config: Config) {
