@@ -18,7 +18,6 @@ export const model = [
   "wd-swinv2-tagger-v3"
 ] as const
 
-
 export const Config = Schema.object({
   wdapi: Schema.string().description('sd-webui API 服务器地址').default('http://127.0.0.1:7860'),
   model: Schema.union(model).description('默认反推模型').default('mld-caformer.dec-5-97527'),
@@ -30,7 +29,7 @@ export function apply(ctx: Context, config: Config) {
     .alias('关键词')
     .alias('tagger')
     .option('model', '-m <string>')
-    .option('threshold', '-c <number>')
+    .option('threshold', '-t <number>')
     .action(async ({ options, session }) => {
       let message = session.quote?.content || session.content;
       let finalmodel
@@ -101,12 +100,13 @@ export function apply(ctx: Context, config: Config) {
 
         const responseData = response.data;
         const tagsObject = responseData.caption.tag;
-        if (tagsObject) {
-          const tagsArray = Object.keys(tagsObject).map(tag => tag.replace(/_/g, ' '));
-          const resultString = tagsArray.join(', ');
 
-          await session.send(resultString);
+        if (tagsObject) {
+          const sortedTags = Object.entries(tagsObject).sort((a, b) => (b[1] as number) - (a[1] as number));
+          const sortedTagNames = sortedTags.map(([tag, weight]) => tag.replace(/_/g, ' '));
+          const resultString = sortedTagNames.join(', ');
         }
+
       } catch (error) {
         await session.send('发送请求时发生错误：' + error.message);
       }
