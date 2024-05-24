@@ -2,21 +2,44 @@ import { Context, Schema, arrayBufferToBase64 } from 'koishi';
 
 export interface Config {
   wdapi: string;
+  model: string;
+  threshold: number;
 }
+export const model = [
+  "wd14-vit.v1",
+  "wd14-vit.v2",
+  "wd14-convnext.v1",
+  "wd14-convnext.v2",
+  "wd14-convnextv2.v1",
+  "wd14-swinv2-v1",
+  "wd-v1-4-moat-tagger.v2",
+  "mld-caformer.dec-5-97527",
+  "mld-tresnetd.6-30000"
+] as const
+
 
 export const Config = Schema.object({
   wdapi: Schema.string().description('sd-webui API 服务器地址').default('http://127.0.0.1:7860'),
+  model: Schema.union(model).description('默认反推模型').default('mld-caformer.dec-5-97527'),
+  threshold: Schema.number().description('默认置信度阈值').default(0.75),
 });
 
 export function apply(ctx: Context, config: Config) {
   ctx.command('反推')
     .alias('关键词')
     .alias('tagger')
-    .option('model', '-m <string>', { fallback: 'mld-caformer.dec-5-97527' })
-    .option('threshold', '-c <number>', { fallback: '0.75' })
+    .option('model', '-m <string>')
+    .option('threshold', '-c <number>')
     .action(async ({ options, session }) => {
       let message = session.quote?.content || session.content;
-
+      let finalmodel
+      let finalthreshold
+      if(!options.model){
+        finalmodel = config.model;
+      }
+      if(!options.threshold){
+        finalthreshold = config.threshold;
+      }
       const logger = ctx.logger('foo');
       const imageUrlMatch1 = message.match(/url="([^"]+)"/);
       const imageUrlMatch2 = message.match(/<img[^>]+src="([^">]+)"[^>]*>/);
@@ -59,8 +82,8 @@ export function apply(ctx: Context, config: Config) {
 
       const payload = {
         image: base64Image,
-        model: options.model,
-        threshold: options.threshold,
+        model: finalmodel,
+        threshold: finalthreshold,
       };
 
       try {
