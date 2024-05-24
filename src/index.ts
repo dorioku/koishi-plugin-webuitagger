@@ -14,7 +14,8 @@ export const model = [
   "wd14-swinv2-v1",
   "wd-v1-4-moat-tagger.v2",
   "mld-caformer.dec-5-97527",
-  "mld-tresnetd.6-30000"
+  "mld-tresnetd.6-30000",
+  "wd-swinv2-tagger-v3"
 ] as const
 
 
@@ -36,9 +37,13 @@ export function apply(ctx: Context, config: Config) {
       let finalthreshold
       if(!options.model){
         finalmodel = config.model;
+      }else{
+        finalmodel = options.model;
       }
       if(!options.threshold){
         finalthreshold = config.threshold;
+      }else{
+        finalthreshold = options.threshold;
       }
       const logger = ctx.logger('foo');
       const imageUrlMatch1 = message.match(/url="([^"]+)"/);
