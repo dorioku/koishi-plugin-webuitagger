@@ -14,5 +14,6 @@ tagger: https://github.com/picobyte/stable-diffusion-webui-wd14-tagger
 
 回复 [图片]/[图片文件]  反推/图片信息
 
-使用反推时-t <number> 可以修改置信度
+使用反推时-t [number] 可以修改置信度
+
 使用原图信息时 -f 可以输出较完整metadata
