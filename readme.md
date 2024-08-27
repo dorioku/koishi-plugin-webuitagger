@@ -17,3 +17,5 @@ tagger: https://github.com/picobyte/stable-diffusion-webui-wd14-tagger
 使用反推时-t [number] 可以修改置信度
 
 使用原图信息时 -f 可以输出较完整metadata
+
+通过文件反推时需要配置gohttp
