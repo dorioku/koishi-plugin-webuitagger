@@ -2,12 +2,12 @@ import { Context, Schema, arrayBufferToBase64 } from 'koishi';  // 引入必要�
 
 // 定义配置接口
 export interface Config {
-  wdapi: string;  // sd-webui API 服务器地址
+  wdapi: string;
   onebotapi: string;
-  model: string;  // 默认反推模型
-  threshold: number;  // 默认置信度阈值
-  ifdev: boolean;  // 是否为开发环境
-  ifded: boolean;  // 是否去除重复项
+  model: string;
+  threshold: number;
+  filemod: boolean;
+  ifded: boolean;
 }
 
 // 可选的模型列表
@@ -24,19 +24,15 @@ export const model = [
   "wd-swinv2-tagger-v3"
 ] as const;
 
-const fs = require('fs');
-const path = require('path');
-
 // 配置Schema定义
 export const Config = Schema.object({
   wdapi: Schema.string().description('sd-webui API 服务器地址').default('http://127.0.0.1:7860'),
-  onebotapi: Schema.string().description('sd-webui API 服务器地址').default('http://127.0.0.1:8888'),
+  filemod: Schema.boolean().description('是否启用文件读取(需要gohttp支持)').default(false),
+  onebotapi: Schema.string().description('onebot API 服务器地址').default('http://127.0.0.1:8888'),
   model: Schema.union(model).description('默认反推模型').default('mld-caformer.dec-5-97527'),
   threshold: Schema.number().description('默认置信度阈值').default(0.75),
-  ifdev: Schema.boolean().description('是否为开发环境').default(false),
   ifded: Schema.boolean().description('是否去除重复项').default(false),
 });
-
 
 // 应用插件功能
 export function apply(ctx: Context, config: Config) {
@@ -64,7 +60,7 @@ export function apply(ctx: Context, config: Config) {
       }
 
       let imgurl = await get_img_by_messege(session)
-      if (!imgurl){
+      if (!imgurl && config.filemod){
         imgurl = await get_img_by_api(session, ctx, config)
       }
       if(!imgurl){
@@ -122,7 +118,7 @@ export function apply(ctx: Context, config: Config) {
     .action(async ({options, session }) => {
 
       let imgurl = await get_img_by_messege(session)
-      if (!imgurl){
+      if (!imgurl && config.filemod){
         imgurl = await get_img_by_api(session, ctx, config)
       }
       if(!imgurl){
@@ -233,7 +229,6 @@ async function get_img_by_api(session, ctx, config) {
 }
 
 async function trans_img_to_base64(imgurl, ctx) {
-
   // 下载图片并转换为 Base64 编码（尝试多次以应对网络问题）
   const cleanedUrl = imgurl.replace(/&amp;/g, '&');
   for (let attempt = 1; attempt <= 3; attempt++) {
